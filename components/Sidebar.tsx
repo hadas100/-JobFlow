@@ -1,12 +1,13 @@
 import React from 'react';
-import { LayoutDashboard, Briefcase, FileText, Search, Settings } from 'lucide-react';
+import { LayoutDashboard, Briefcase, FileText, Search, Settings, LogOut } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onLogout: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout }) => {
   const menuItems = [
     { id: 'dashboard', label: 'לוח בקרה', icon: <LayoutDashboard size={20} /> },
     { id: 'tracker', label: 'המועמדויות שלי', icon: <Briefcase size={20} /> },
@@ -40,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-100">
+      <div className="p-4 border-t border-gray-100 space-y-2">
         <button 
           onClick={() => setActiveTab('settings')}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
@@ -52,7 +53,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           <Settings size={18} />
           <span>הגדרות</span>
         </button>
-        <div className="mt-2 px-4 text-xs text-gray-400 text-center">
+
+        <button 
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 hover:text-red-600"
+        >
+          <LogOut size={18} />
+          <span>התנתק</span>
+        </button>
+
+        <div className="mt-2 px-4 text-xs text-gray-400 text-center pt-2">
           v1.0.0 Beta
         </div>
       </div>

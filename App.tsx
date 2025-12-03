@@ -5,6 +5,7 @@ import { JobFinder } from './components/JobFinder';
 import { ResumeBuilder } from './components/ResumeBuilder';
 import { Dashboard } from './components/Dashboard';
 import { Settings } from './components/Settings';
+import { Login } from './components/Login';
 import { JobApplication, ApplicationStatus, JobOpportunity, UserProfile } from './types';
 
 // Mock Data
@@ -97,6 +98,7 @@ const MOCK_JOBS: JobOpportunity[] = [
 ];
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [applications, setApplications] = useState<JobApplication[]>(MOCK_APPLICATIONS);
   const [userProfile, setUserProfile] = useState<UserProfile>(MOCK_USER);
@@ -124,6 +126,19 @@ function App() {
   const handleAddJobs = (newJobs: JobOpportunity[]) => {
     setJobs(prev => [...newJobs, ...prev]);
   };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setActiveTab('dashboard'); // Reset tab on logout
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -170,7 +185,7 @@ function App() {
       </main>
 
       {/* Sidebar (Fixed Right) */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
     </div>
   );
 }
