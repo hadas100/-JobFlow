@@ -1,18 +1,33 @@
 import React, { useState } from 'react';
-import { LogIn } from 'lucide-react';
+import { LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import { db } from '../services/db';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (email: string) => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // סימולציה של התחברות - בגרסה אמיתית כאן תהיה בדיקת שרת
-    onLogin();
+    setError('');
+
+    try {
+      if (isRegistering) {
+        if (!name) throw new Error('נא להזין שם מלא');
+        db.register(name, email, password);
+      } else {
+        db.login(email, password);
+      }
+      onLogin(email);
+    } catch (err: any) {
+      setError(err.message || 'אירעה שגיאה');
+    }
   };
 
   return (
@@ -22,11 +37,39 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-3xl mb-4 shadow-lg shadow-blue-200">
             J
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">ברוכים הבאים</h1>
-          <p className="text-gray-500 mt-2 text-center">הכנס פרטים כדי להתחבר ל-JobFlow</p>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {isRegistering ? 'הרשמה למערכת' : 'ברוכים הבאים'}
+          </h1>
+          <p className="text-gray-500 mt-2 text-center">
+            {isRegistering 
+              ? 'צור חשבון חדש כדי לנהל את חיפוש העבודה שלך'
+              : 'הכנס פרטים כדי להתחבר ל-JobFlow'
+            }
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm flex items-center gap-2">
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          )}
+
+          {isRegistering && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">שם מלא</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all hover:border-blue-300"
+                placeholder="ישראל ישראלי"
+                required={isRegistering}
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">כתובת אימייל</label>
             <input
@@ -57,13 +100,33 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             type="submit"
             className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 mt-4"
           >
-            <LogIn size={20} />
-            התחבר למערכת
+            {isRegistering ? (
+               <>
+                <UserPlus size={20} />
+                הירשם למערכת
+               </>
+            ) : (
+               <>
+                <LogIn size={20} />
+                התחבר
+               </>
+            )}
           </button>
         </form>
         
-        <div className="mt-8 text-center text-xs text-gray-400">
-          * זוהי גרסת הדגמה, ניתן להקליד כל דבר ולהתחבר
+        <div className="mt-6 text-center pt-6 border-t border-gray-100">
+          <button 
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setError('');
+            }}
+            className="text-blue-600 font-medium hover:underline text-sm"
+          >
+            {isRegistering 
+              ? 'יש לך כבר חשבון? התחבר כאן' 
+              : 'אין לך חשבון? הירשם עכשיו'
+            }
+          </button>
         </div>
       </div>
     </div>
